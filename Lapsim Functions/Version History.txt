@@ -1,0 +1,10 @@
+V1.0 - 16.10.2021 - JM
+
+Validated vehicle model, plots can be generated using Val_plot.m
+
+Changes made to braking accelerations as simulated values were initially 2x higher than they should have been. 
+
+No noticeable changes to laptime sensitivities.
+
+To change: the sequency in which the track layout is filtered needs to be changed. 
+Lat accel does not drop between slaloms because the curvature is filtered after the abs value is taken. this brings the troughs upwards instead of correctly dropping to 0.
