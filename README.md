@@ -3,6 +3,8 @@
 
  Core functions for the lapsim are saved in /lapsim functions/ folder. Example wrappers are in the form of runner_xxxx.m files.
 
+ Many of the files in the root folder are example data outputs and can be ignored.
+
  ## Quick Start Tips
 
 Change the loaded track file as required.
