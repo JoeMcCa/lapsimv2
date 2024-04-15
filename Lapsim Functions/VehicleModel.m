@@ -5,41 +5,6 @@ function [AX,AY,V] = VehicleModel(V,Ax,mode,vehicle)
 %Mode 2 = Braking
 %Mode 3 = Lateral Solving for given Long
 
-%% Rename vehicle struct
-
-% m = vehicle.m;
-% CGH = vehicle.CGH;
-% rw = vehicle.rw; 
-% l = vehicle.l;
-% t = vehicle.t;
-% ClA = vehicle.ClA;
-% AeroBias = vehicle.AeroBias;
-% CdA = vehicle.CdA;
-% DragCentreHeight =vehicle.DragCentreHeight;
-% muXfitgg = vehicle.muXfitgg;
-% muYfitgg = vehicle.muYfitgg; 
-% MuXsens = vehicle.MuXsens;
-% MuYsens = vehicle.MuYsens;
-
-%% Test Parameters
-
-% load ggvtyre.mat
-% 
-% m = 230; %kg
-% CGH = 250; %mm
-% rw = 0.5; %proportion
-% l = 1550; %mm
-% t = 1050; %mm
-% 
-% ClA = 3.5; 
-% AeroBias = 0.5;
-% CdA = 2.0;
-% DragCentreHeight = 400; %mm
-% mode = 3;
-% V=30;
-% Ax = 0;
-
-
 %% Initialisation Settings
 ittol = 0.01;
 
@@ -204,6 +169,10 @@ elseif mode == 3 % Combined/lateral
         
         AX = Ax;
         AYnew = AY;
+
+        if isnan(AY) || AY < 0.0 || imag(AY) ~= 0
+            AY = 0;
+        end
         
         IterError = abs(AYold-AYnew)/AYold;
         

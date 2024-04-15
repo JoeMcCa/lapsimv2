@@ -3,10 +3,35 @@ function [GGVfit,latGfit,Velocitylist,posGGV,negGGV] = GGVGenerator(vehicle)
 % Joe McCarrison
 % Started 23.04.19
 
+%% Redefine vehicle struct
+%vehicle params were changed from global shitty variables to structs passed
+%from function to function in march 2021.
+
+m = vehicle.m;
+CGH = vehicle.CGH;
+rw = vehicle.rw; 
+l = vehicle.l;
+t = vehicle.t;
+ClA = vehicle.ClA;
+AeroBias = vehicle.AeroBias;
+CdA = vehicle.CdA;
+DragCentreHeight =vehicle.DragCentreHeight;
+muXfitgg = vehicle.muXfitgg;
+muYfitgg = vehicle.muYfitgg; 
+MuXsens = vehicle.MuXsens;
+MuYsens = vehicle.MuYsens;
+
+%% Find Terminal Velocity
+
+%if tractivesource == 1 % Internal Combustion Accurate
+%Power curve modifier, with various constants to sweep through
+%elseif tractivesource == 2 % Electric Vehicle Accurate
+%Inputs incl: Pack Voltage, Peak DC Current, RMS Current,
+%else % Simple Power approximation
+%Vterminal = (Power/(0.5*CdA*drs*1.225))^(1/3);
+%end
+
 %% Open Velocity Vector Loop
-
-debugmode = 0;
-
 Vmax = 40;
 Vcounts = 40;
 Velocitylist = linspace(1,Vmax,Vcounts); %linspace(1,Vterminal,30);
@@ -54,15 +79,9 @@ LATGGVData = [AXlistLAT,AYlistLAT,transpose(Velocitylist)];
 
 latGfit = fit(transpose(Velocitylist),AYlistLAT,'linearinterp');
 
-if(debugmode == 1)
-    figure(9)
-    plot(latGfit)
-    hold on
-    plot(Velocitylist,AYlistLAT,'o','Color','b')
-    xlabel('Velocity [m/s]')
-    ylabel('Ay acceleration limit at Ax=0 [m/s/s]')
-    title('LatG pure fit vs velocity')
-end
+figure(9)
+plot()
+
 %% Combined data
 
 CombinedCounts = 10;
