@@ -19,7 +19,7 @@
     % Remember that sensitivities will change considerably from one
     % baseline config to another.
 
-clear all
+clear
 addpath 'Track Map Data'
 addpath 'Lapsim Functions'
 
@@ -226,8 +226,8 @@ if sensitivity_study == 1
     Results.points_delta = Results.points_total(1,2:end)-Results.points_total(1);
     
     figure(1)
-    Results.barY = reshape(Results.points_delta,[2,7])'
-    Results.barX = categorical(sens_input_list)
+    Results.barY = reshape(Results.points_delta,[2,7])';
+    Results.barX = categorical(sens_input_list);
     %bar(Results.barY)
     bar(Results.barX,Results.barY)
     title('Dynamic Points Sensitivities')

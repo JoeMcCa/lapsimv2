@@ -1,14 +1,36 @@
-function [GGVfit,latGfit,Velocitylist,posGGV,negGGV] = GGVGenerator(vehicle)
+function [GGVfit,latGfit,Velocitylist,posGGV,negGGV] = GGVGenerator(vehicle,simsetup)
 % GGV Diagram Generation Tool
 % Joe McCarrison
 % Started 23.04.19
 
+%% Initialise optional sim-setup fields:
+if(isfield(simsetup,'debugmode') == 1)
+    debugmode = simsetup.debugmode;
+else
+    debugmode = 0;
+end
+
+if(isfield(simsetup,'vmax') == 1)
+    Vmax = simsetup.vmax;
+else
+    Vmax = 40;
+end
+
+if(isfield(simsetup,'vcounts') == 1)
+    Vcounts = simsetup.vcounts;
+else
+    Vcounts = 40;
+end
+
+if(isfield(simsetup,'combinedcounts'))
+    CombinedCounts = simsetup.combinedcounts;
+else
+    CombinedCounts = 10;
+end
+
 %% Open Velocity Vector Loop
 
-debugmode = 0;
 
-Vmax = 40;
-Vcounts = 40;
 Velocitylist = linspace(1,Vmax,Vcounts); %linspace(1,Vterminal,30);
 
 AYlist = [];
@@ -27,11 +49,12 @@ for mode = 1:2
     end
 end
 
-% figure(8)
-% plot(Data(:,1),Data(:,3),'.')
-% xlabel('Longitudi Acceleration [m/s/s]')
-% ylabel('Velocity [m/s]')
-
+if(debugmode == 1)
+    figure(1)
+    plot(Data(:,1),Data(:,3),'.')
+    xlabel('Longitudi Acceleration [m/s/s]')
+    ylabel('Velocity [m/s]')
+end
 
 %% Pure Lateral
 AYlistLAT = [];
@@ -55,7 +78,7 @@ LATGGVData = [AXlistLAT,AYlistLAT,transpose(Velocitylist)];
 latGfit = fit(transpose(Velocitylist),AYlistLAT,'linearinterp');
 
 if(debugmode == 1)
-    figure(9)
+    figure(2)
     plot(latGfit)
     hold on
     plot(Velocitylist,AYlistLAT,'o','Color','b')
@@ -64,8 +87,6 @@ if(debugmode == 1)
     title('LatG pure fit vs velocity')
 end
 %% Combined data
-
-CombinedCounts = 10;
 
 for i = 1:Vcounts
     V = Velocitylist(i);
@@ -86,23 +107,25 @@ for i = 1:Vcounts
     end
 end
 
-% figure(3)
-% scatter3(Data(:,1)/9.81,Data(:,2)/9.81,Data(:,3),[],Data(:,3))
-% colormap(winter)
-% xlabel('X - Longitudinal')
-% ylabel('Y - Lateral')
-% zlabel('Z - Velocity')
-% ylim([0 3])
-% grid on
-% % 
-% figure(2)
-% scatter(Data(:,1)/9.81,Data(:,2)/9.81,[],Data(:,3))
-% colormap(winter)
-% xlabel('X - Longitudinal')
-% ylabel('Y - Lateral')
-% zlabel('Z - Velocity')
-% ylim([0 3])
-% grid on
+if(debugmode == 1)
+    figure(3)
+    scatter3(Data(:,1)/9.81,Data(:,2)/9.81,Data(:,3),[],Data(:,3))
+    colormap(winter)
+    xlabel('X - Longitudinal')
+    ylabel('Y - Lateral')
+    zlabel('Z - Velocity')
+    ylim([0 3])
+    grid on
+    % 
+    figure(4)
+    scatter(Data(:,1)/9.81,Data(:,2)/9.81,[],Data(:,3))
+    colormap(winter)
+    xlabel('X - Longitudinal')
+    ylabel('Y - Lateral')
+    zlabel('Z - Velocity')
+    ylim([0 3])
+    grid on
+end
 
 %% Fit Surface to Data
 
@@ -112,16 +135,19 @@ Vlist = Data(:,3);
 
 GGVfit = fit([Axlist Vlist], Aylist ,'linearinterp'); %
 
-figure(1)
-plot (GGVfit)
-hold on
-scatter3(Axlist,Vlist,Aylist,'r','filled')
-title('FULL GGV DIAGRAM')
-grid on
-ylabel('V - Velocity')
-xlabel('Ax - Longitudinal Acceleration Limit')
-zlabel('Ay - Lateral Acceleration Limit')
-zlim([0 max(Aylist)])
+if(debugmode == 1)
+    figure(5)
+    plot (GGVfit)
+    hold on
+    scatter3(Axlist,Vlist,Aylist,'r','filled')
+    title('FULL GGV DIAGRAM')
+    grid on
+    ylabel('V - Velocity')
+    xlabel('Ax - Longitudinal Acceleration Limit')
+    zlabel('Ay - Lateral Acceleration Limit')
+    zlim([0 max(Aylist)])
+end
+
 %% Fing Split points so that Pos/Neg GGV does not curl over itself
 YatXmax = [];
 for V = Velocitylist
@@ -149,16 +175,17 @@ end
 %Datapos = [Datapos; LATGGVData];
 posGGV = fit([Datapos(:,3) Datapos(:,2)], Datapos(:,1) ,'linearinterp');
 
-% figure(7)
-% plot (posGGV)
-% hold on
-% scatter3(Datapos(:,3),Datapos(:,2),Datapos(:,1),'r','filled')
-% title('Positive Longitudinal Quadrant')
-% zlim([min(Datapos(:,1)) max(Datapos(:,1))])
-% xlabel('V - Velocity')
-% ylabel('Ay - Lateral Acceleration Limit')
-% zlabel('Ax - Longitudinal Acceleration Limit')
-
+if(debugmode == 1)
+    figure(6)
+    plot (posGGV)
+    hold on
+    scatter3(Datapos(:,3),Datapos(:,2),Datapos(:,1),'r','filled')
+    title('Positive Longitudinal Quadrant')
+    zlim([min(Datapos(:,1)) max(Datapos(:,1))])
+    xlabel('V - Velocity')
+    ylabel('Ay - Lateral Acceleration Limit')
+    zlabel('Ax - Longitudinal Acceleration Limit')
+end
 
 %% Create Negative GGV Diagram
 Dataneg = [];
@@ -176,15 +203,15 @@ end
 %Dataneg = [Dataneg; LATGGVData];
 negGGV = fit([Dataneg(:,3) Dataneg(:,2)], Dataneg(:,1) ,'linearinterp');
 
-% figure(6)
-% plot  (negGGV)
-% hold on
-% scatter3(Dataneg(:,3),Dataneg(:,2),Dataneg(:,1),'r','filled')
-% title('Negative Longitudinal Quadrant')
-% zlim([min(Dataneg(:,1)) max(Dataneg(:,1))])
-% xlabel('V - Velocity')
-% ylabel('Ay - Lateral Acceleration Limit')
-% zlabel('Ax - Longitudinal Acceleration Limit')
-
+if(debugmode == 1)
+    figure(7)
+    plot  (negGGV)
+    hold on
+    scatter3(Dataneg(:,3),Dataneg(:,2),Dataneg(:,1),'r','filled')
+    title('Negative Longitudinal Quadrant')
+    zlim([min(Dataneg(:,1)) max(Dataneg(:,1))])
+    xlabel('V - Velocity')
+    ylabel('Ay - Lateral Acceleration Limit')
+    zlabel('Ax - Longitudinal Acceleration Limit')
+end
 %end
-

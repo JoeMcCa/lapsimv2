@@ -134,7 +134,7 @@ elseif mode == 3 % Combined/lateral
             
             FXRI = FX*muRI(1)*FZRI/muXtotal;
             FXRO = FX*muRO(1)*FZRO/muXtotal;
-        else Ax*vehicle.m + Fd == 0
+        else % (Ax*vehicle.m + Fd == 0)
             
             FXFI = 0;
             FXFO = 0;

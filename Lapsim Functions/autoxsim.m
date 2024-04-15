@@ -43,7 +43,7 @@ L_section = track.L_section;
 %POS = track.POS;
 
 %% Generate GGV
-[GGV latG VelocityRange PosGGV NegGGV] = GGVGenerator(vehicle);
+[GGV latG VelocityRange PosGGV NegGGV] = GGVGenerator(vehicle,simsetup);
 %% Organise Track data:
 
 %Delete First and Last sections. (All must be bounded by Corner Apexii
