@@ -1,40 +1,11 @@
-function [results] = autoxsim(vehicle,track,simsetup)
+function [results,skidpantime] = autoxsim(vehicle,track,simsetup)
 %UNTITLED2 Summary of this function goes here
 %   Changed to function march 2021
-%   refer to handler script - A.m for details on how to generate vehicle
+%   refer to handler script - Runner_Main.m for details on how to generate vehicle
 %   structure and track struct
 
 %% Redefine simsetup
 dx = simsetup.dx;
-
-%% Redefine vehicle struct
-muXfitgg    =vehicle.muXfitgg;
-muYfitgg    =vehicle.muYfitgg;
-MuXsens     =vehicle.MuXsens;
-MuYsens     =vehicle.MuYsens;
-
-Car_mass    =vehicle.Car_mass;
-Driver_mass =vehicle.Driver_mass;
-m           =vehicle.m;
-CGH         =vehicle.CGH;
-rw          =vehicle.rw;
-l           =vehicle.l;
-t           =vehicle.t;
-Pmax        =vehicle.Pmax;
-
-ClA         =vehicle.ClA;
-AeroBias    =vehicle.AeroBias;
-CdA         =vehicle.CdA;
-DragCentreHeight    =vehicle.DragCentreHeight;
-
-Voltage     =vehicle.Voltage;
-Irmsmax     =vehicle.Irmsmax;
-Gearing     =vehicle.Gearing;
-Rollingradius   =vehicle.Rollingradius;
-rpmpervolt  =vehicle.rpmpervolt;
-
-Vmaxvoltage     =vehicle.Vmaxvoltage;
-Torquemaxlong   =vehicle.Torquemaxlong;
 
 %% Redefine track struct
 
@@ -43,7 +14,7 @@ L_section = track.L_section;
 %POS = track.POS;
 
 %% Generate GGV
-[GGV latG VelocityRange PosGGV NegGGV] = GGVGenerator(vehicle,simsetup);
+[GGV, latG, VelocityRange, PosGGV, NegGGV] = GGVGenerator(vehicle,simsetup);
 %% Organise Track data:
 
 %Delete First and Last sections. (All must be bounded by Corner Apexii
@@ -119,15 +90,15 @@ for i = 1:imax
             V_sectionpos{i}(j) = sqrt(V_sectionpos{i}(j-1)^2+2*AX_sectionpos{i}(j-1)*dx); %Assumed Constant acceleration over distance
             AY_sectionpos{i}(j) = V_sectionpos{i}(j).^2*K_section{i}(j);
             
-            if AY_sectionpos{i}(j) > latG(V_sectionpos{i}(j));
+            if AY_sectionpos{i}(j) > latG(V_sectionpos{i}(j))
                 AX_sectionpos{i}(j) = 0;
             else
-                if V_sectionpos{i}(j) <= Vmaxvoltage
+                if V_sectionpos{i}(j) <= vehicle.Vmaxvoltage
                     TractionLimit = (max(PosGGV(V_sectionpos{i}(j),AY_sectionpos{i}(j)),0));
-                    PowerLimit = (Pmax*1000/(V_sectionpos{i}(j))-0.5*1.225*CdA*V_sectionpos{i}(j)^2)./(m);
-                    TorqueLimit = (Torquemaxlong-0.5*1.225*CdA*V_sectionpos{i}(j)^2)./(m);
+                    PowerLimit = (vehicle.Pmax*1000/(V_sectionpos{i}(j))-0.5*1.225*vehicle.CdA*V_sectionpos{i}(j)^2)./(vehicle.m);
+                    TorqueLimit = (vehicle.Torquemaxlong-0.5*1.225*vehicle.CdA*V_sectionpos{i}(j)^2)./(vehicle.m);
                     MINARRAY = [TractionLimit,PowerLimit,TorqueLimit];
-                    P_sectionpos{i}(j) = (min(MINARRAY)*m+0.5*1.225*CdA*V_sectionpos{i}(j)^2)*V_sectionpos{i}(j);
+                    P_sectionpos{i}(j) = (min(MINARRAY)*vehicle.m+0.5*1.225*vehicle.CdA*V_sectionpos{i}(j)^2)*V_sectionpos{i}(j);
                     AX_sectionpos{i}(j) = min(MINARRAY);
                 else
                     AX_sectionpos{i}(j) = 0;
@@ -138,8 +109,7 @@ for i = 1:imax
 end
 
 %% Negative acceleration loop (braking)
-for i = 1:imax
-    i = imax+1-i; %Invert loop drection - rework later
+for i = flip(1:imax)
     jmax = size(K_section{i},2);
     
     V_sectionneg{i} = zeros(size(K_section{i},2),1);
@@ -154,10 +124,8 @@ for i = 1:imax
         V_sectionneg{i}(jmax) = V0out{i};
     end
     
-    for j = 1:jmax
-        
-        j = jmax+1-j; % invert direction of loop through space
-        
+    for j = flip(1:jmax)
+                
         if j == jmax
             %Velocity Known. Assumed no Longit Acceleration Capicity
             AX_sectionneg{i}(j)=0;
@@ -172,10 +140,10 @@ for i = 1:imax
                 AX_sectionneg{i}(j) = 0;
             else
                 TractionLimit = -1*min(NegGGV(V_sectionneg{i}(j),AY_sectionneg{i}(j)),0);
-                PowerLimit = (vehicle.regenmax*1000/(V_sectionneg{i}(j))-0.5*1.225*CdA*V_sectionneg{i}(j)^2)./m;
-                TorqueLimit = (Torquemaxlong-0.5*1.225*CdA*V_sectionneg{i}(j)^2)./m;
+                PowerLimit = (vehicle.regenmax*1000/(V_sectionneg{i}(j))-0.5*1.225*vehicle.CdA*V_sectionneg{i}(j)^2)./vehicle.m;
+                TorqueLimit = (vehicle.Torquemaxlong-0.5*1.225*vehicle.CdA*V_sectionneg{i}(j)^2)./vehicle.m;
                 MINARRAY = [TractionLimit,PowerLimit,TorqueLimit];
-                P_sectionneg{i}(j) = -vehicle.regen*(min(MINARRAY)*m+0.5*1.225*CdA*V_sectionneg{i}(j)^2)*V_sectionneg{i}(j);
+                P_sectionneg{i}(j) = -vehicle.regen*(min(MINARRAY)*vehicle.m+0.5*1.225*vehicle.CdA*V_sectionneg{i}(j)^2)*V_sectionneg{i}(j);
                 AX_sectionneg{i}(j) = -1*min(NegGGV(V_sectionneg{i}(j),AY_sectionneg{i}(j)),0);
             end
         end       
@@ -247,4 +215,19 @@ end
     results.Accu_E_Loss = trapz(T_cumtrack,(vehicle.Pack_R*results.I_track.^2));
     
 
+
+%% Skidpan Simulation using GGV data:
+skid.rad = [];
+for v = VelocityRange
+    
+    r = (v.^2)./latG(v);
+    skid.rad = [skid.rad r];
+end
+skid.rad2vel = fit(transpose(skid.rad),transpose(VelocityRange),'linearinterp');
+
+%% Skidpad Time
+skid.ri = 15.25/2; %Radius of inner cone circle (m)
+skid.radius = skid.ri+((vehicle.t/1000)/2)+0.012; %Radius of circle driven - CL of car (m)
+skid.velocity = skid.rad2vel(r);
+skidpantime = (skid.velocity/2*pi*skid.radius);
 end

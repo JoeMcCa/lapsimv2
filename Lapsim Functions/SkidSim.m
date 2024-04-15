@@ -1,6 +1,9 @@
-function time = SkidSim(vehicle)
+function time = SkidSim(vehicle,latG,VelocityRange)
+
 %% Velocity Fit
-[GGV latG VelocityRange PosGGV NegGGV] = GGVGenerator(vehicle);
+if nargin ~= 3
+    [GGV latG VelocityRange PosGGV NegGGV] = GGVGenerator(vehicle, simsetup);
+end
 vel = linspace(1,min(vehicle.Vmaxvoltage,VelocityRange(end)),50);
 rad = [];
 for v = vel

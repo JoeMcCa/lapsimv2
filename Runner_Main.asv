@@ -18,13 +18,16 @@
     % 2) ensure vehicle parameters are correct baseline configuration.
     % Remember that sensitivities will change considerably from one
     % baseline config to another.
-
+tic
 clear all
 addpath 'Track Map Data'
 addpath 'Lapsim Functions'
 
 %% Define simulation settings
-simsetup.dx = 0.25; %m
+simsetup.dx             = 0.5;     %m
+simsetup.vmax           = 40;       %m/s
+simsetup.vcounts        = 40;       %u/less
+simsetup.combinedcounts = 10;       %u/less
 
 %% Sensitivity Study %%
 % sensitivity studies are done by creating an array of mostly ones where
@@ -172,14 +175,12 @@ end
 vehicle.Vmaxvoltage = (vehicle.Voltage)*vehicle.rpmpervolt*(1/vehicle.Gearing)*(1/60)*2*pi()*vehicle.Rollingradius*(1/1000);
 vehicle.Vmaxset = 20000*(1/vehicle.Gearing)*(1/60)*2*pi()*vehicle.Rollingradius*(1/1000);
 
-%% Run Autox Sim
-[autoxresults] = autoxsim(vehicle,track,simsetup);
+%% Run Autox/Skidpan Sim
+[autoxresults,skidresults] = autoxsim(vehicle,track,simsetup);
 
 %% Run Accel Sim
-[accelresults] = accelsim(vehicle);
+[accelresults] = accelsim(vehicle,simsetup);
 
-%% Run Skidpan Sim
-[skidresults] = SkidSim(vehicle);
 
 %% store results
 T_laps = [T_laps, autoxresults.T_lap];
@@ -226,12 +227,13 @@ if sensitivity_study == 1
     Results.points_delta = Results.points_total(1,2:end)-Results.points_total(1);
     
     figure(1)
-    Results.barY = reshape(Results.points_delta,[2,7])'
-    Results.barX = categorical(sens_input_list)
+    Results.barY = reshape(Results.points_delta,[2,7])';
+    Results.barX = categorical(sens_input_list);
     %bar(Results.barY)
     bar(Results.barX,Results.barY)
     title('Dynamic Points Sensitivities')
     ylabel('Points Delta - Positive=Points Gain')
     grid on
 end
-    
+toc
+autoxresults.T_lap

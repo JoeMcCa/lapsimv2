@@ -4,27 +4,34 @@ function [GGVfit,latGfit,Velocitylist,posGGV,negGGV] = GGVGenerator(vehicle,sims
 % Started 23.04.19
 
 %% Initialise optional sim-setup fields:
-if(isfield(simsetup,'debugmode') == 1)
-    debugmode = simsetup.debugmode;
+if nargin == 2
+    if(isfield(simsetup,'debugmode') == 1)
+        debugmode = simsetup.debugmode;
+    else
+        debugmode = 0;
+    end
+    
+    if(isfield(simsetup,'vmax') == 1)
+        Vmax = simsetup.vmax;
+    else
+        Vmax = 40;
+    end
+    
+    if(isfield(simsetup,'vcounts') == 1)
+        Vcounts = simsetup.vcounts;
+    else
+        Vcounts = 40;
+    end
+    
+    if(isfield(simsetup,'combinedcounts'))
+        CombinedCounts = simsetup.combinedcounts;
+    else
+        CombinedCounts = 10;
+    end
 else
     debugmode = 0;
-end
-
-if(isfield(simsetup,'vmax') == 1)
-    Vmax = simsetup.vmax;
-else
     Vmax = 40;
-end
-
-if(isfield(simsetup,'vcounts') == 1)
-    Vcounts = simsetup.vcounts;
-else
     Vcounts = 40;
-end
-
-if(isfield(simsetup,'combinedcounts'))
-    CombinedCounts = simsetup.combinedcounts;
-else
     CombinedCounts = 10;
 end
 
