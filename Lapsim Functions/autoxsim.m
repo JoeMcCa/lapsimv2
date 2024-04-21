@@ -13,7 +13,7 @@ if nargin == 3
         warning('dx unspecified in autoxsim - default selected')
     end
 else
-    dx = 0.25
+    dx = 0.25;
     warning('simsetup not passed to autoxsim - default dx selected')
 end
 
