@@ -5,7 +5,17 @@ function [results,skidpantime] = autoxsim(vehicle,track,simsetup)
 %   structure and track struct
 
 %% Redefine simsetup
-dx = simsetup.dx;
+if nargin == 3
+    if(isfield(simsetup,'dx') == 1)
+        dx = simsetup.dx;
+    else
+        dx = 0.25;
+        warning('dx unspecified in autoxsim - default selected')
+    end
+else
+    dx = 0.25
+    warning('simsetup not passed to autoxsim - default dx selected')
+end
 
 %% Redefine track struct
 
@@ -14,7 +24,11 @@ L_section = track.L_section;
 %POS = track.POS;
 
 %% Generate GGV
-[GGV, latG, VelocityRange, PosGGV, NegGGV] = GGVGenerator(vehicle,simsetup);
+if nargin ~= 3
+    [GGV, latG, VelocityRange, PosGGV, NegGGV] = GGVGenerator(vehicle);
+else
+    [GGV, latG, VelocityRange, PosGGV, NegGGV] = GGVGenerator(vehicle,simsetup);
+end
 %% Organise Track data:
 
 %Delete First and Last sections. (All must be bounded by Corner Apexii

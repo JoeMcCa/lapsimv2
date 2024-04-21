@@ -18,7 +18,6 @@
     % 2) ensure vehicle parameters are correct baseline configuration.
     % Remember that sensitivities will change considerably from one
     % baseline config to another.
-tic
 clear all
 addpath 'Track Map Data'
 addpath 'Lapsim Functions'
@@ -28,7 +27,7 @@ simsetup.dx             = 0.25;     %m
 simsetup.vmax           = 40;       %m/s max GGV generation considered velocity
 simsetup.vcounts        = 15;       %u/less GGV generator V indexes
 simsetup.combinedcounts = 20;       %u/less GGV generator Ax indexes
-simsetup.debugmode      = 1;        %displays additional plots
+simsetup.debugmode      = 0;        %displays additional debugging plots
 
 %% Sensitivity Study %%
 % sensitivity studies are done by creating an array of mostly ones where
@@ -236,5 +235,4 @@ if sensitivity_study == 1
     ylabel('Points Delta - Positive=Points Gain')
     grid on
 end
-toc
 autoxresults.T_lap
