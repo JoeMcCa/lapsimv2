@@ -15,28 +15,28 @@ if nargin == 2
         Vmax = simsetup.vmax;
     else
         Vmax = 40;
-        warning('V max unspecified in GGVGenerator - default selected')
+        warning('simsetup.vmax unspecified in GGVGenerator - default selected')
     end
     
     if(isfield(simsetup,'vcounts') == 1)
         Vcounts = simsetup.vcounts;
     else
         Vcounts = 40;
-        warning('V Counts unspecified in GGVGenerator - default selected')
+        warning('simsetup.vcounts unspecified in GGVGenerator - default selected')
     end
     
     if(isfield(simsetup,'combinedcounts'))
         CombinedCounts = simsetup.combinedcounts;
     else
         CombinedCounts = 10;
-        warning('Combined Counts unspecified in GGVGenerator - default selected')
+        warning('simsetup.combinedcounts unspecified in GGVGenerator - default selected')
     end
 else
     debugmode = 0;
     Vmax = 40;
     Vcounts = 40;
     CombinedCounts = 10;
-    warning('simsetup not passed to GGVGenerator - default options selected')
+    warning('simsetup struct not passed to GGVGenerator - default options selected')
 end
 
 %% Open Velocity Vector Loop
