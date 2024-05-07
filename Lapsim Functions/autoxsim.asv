@@ -55,9 +55,9 @@ for i = 1:size(K_section,2)
     
     Trackspline = fit(Ltrack,Ktrack,'smoothingspline');
     
-    ApexRadiusIn{i} = max(min(1/Trackspline(0),rad(end)),rad(1));
+    ApexRadiusIn{i} = 1/Trackspline(0);
     V0in{i} = rad2vel(ApexRadiusIn{i});
-    ApexRadiusOut{i} = max(min(1/Trackspline(Ltrack(end)),rad(end)),rad(1));;
+    ApexRadiusOut{i} = 1/Trackspline(Ltrack(end));
     V0out{i} = rad2vel(ApexRadiusOut{i});
     
     Lmax = dx*round((1/dx)*Ltrack(end)); % Round to nearest multiple of dx
