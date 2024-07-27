@@ -1,15 +1,14 @@
 # lapsimv2
  Steady state laptime and competition simulator code for fsae in matlab
 
- Core functions for the lapsim are saved in /lapsim functions/ folder. Example wrappers are in the form of runner_xxxx.m files.
+ Core functions for the lapsim are saved in /lapsim functions/ folder. Example wrappers are in the form of runner_xxxx.m files, which define vehicle parameters/track map before calling the functions which calculate times & points.
 
  Many of the files in the root folder are example data outputs and can be ignored.
 
  ## Quick Start Tips
 
 Change the loaded track file as required.
-Modify parameters below to change vehicle settings.
-
+Modify parameters to change vehicle settings.
 
 to do sweeps of data:
 1. Use "var" & "var2" as indexes of the changing vehicle settings
